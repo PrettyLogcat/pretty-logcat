@@ -2,25 +2,21 @@ mod data;
 mod parser;
 mod pretty;
 mod style;
+mod style_manager;
 
-use std::collections::{hash_map::DefaultHasher, HashMap};
-use std::hash::{Hash, Hasher};
-use std::io::{self};
-use std::rc::Rc;
-
-use regex::Regex;
+use std::io;
 
 use data::Data;
-use parser::{Parser, ParserData};
+use parser::Parser;
 use pretty::Pretty;
-use style::{DynamicStyleBuilder, Style};
+use style_manager::StyleManager;
 
 fn main() {
-    let parser = Parser::new();
-    let mut hash_style = HashMap::<u64, Rc<Style>>::new();
-
     let stdin = io::stdin();
     let mut buffer = String::new();
+
+    let parser = Parser::new();
+    let mut style_manager = StyleManager::new();
 
     loop {
         match stdin.read_line(&mut buffer) {
@@ -28,21 +24,14 @@ fn main() {
             Ok(_) => match parser.parse(&buffer) {
                 Some(parsed) => {
                     let data = Data::new(&parsed);
-                    println!("{:?}", data);
+                    let style = style_manager.get_style(&data.tag);
+                    let mut pretty = Pretty::new(style);
+                    pretty.add_text(data.to_string());
+                    println!("{}", pretty);
                 }
-                None => println!("{}", buffer),
+                None => println!("NOT: {}", buffer),
             },
         };
         buffer.clear();
     }
-}
-
-fn calculate_hash(text: &String) -> u64 {
-    let mut hasher = DefaultHasher::new();
-    text.hash(&mut hasher);
-    hasher.finish()
-}
-
-fn generate_style() -> Style {
-    Style::new(DynamicStyleBuilder::new().add_foreground("48;5;2".to_string()))
 }

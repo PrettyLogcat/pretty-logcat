@@ -13,7 +13,7 @@ pub struct ParserData {
 impl Parser {
     pub fn new() -> Parser {
         Parser {
-            regex: Regex::new(r"(\d{2}-\d{2})\s(\d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s(\w)\s(\w+\s{0,}:)\s+(.+)").unwrap()
+            regex: Regex::new(r"(\d{2}-\d{2})\s(\d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s+(\w)\s(.+:)(.+)").unwrap()
         }
     }
 
