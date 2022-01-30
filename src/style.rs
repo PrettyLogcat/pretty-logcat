@@ -1,7 +1,7 @@
 pub struct Style {
     pub background: Option<String>,
     pub foreground: Option<String>,
-    pub set: Option<Vec<String>>,
+    pub modifiers: Option<Vec<String>>,
 }
 
 pub trait StyleBuilder {
@@ -11,7 +11,7 @@ pub trait StyleBuilder {
 pub struct DynamicStyleBuilder {
     background: Option<String>,
     foreground: Option<String>,
-    set: Option<Vec<String>>,
+    modifiers: Option<Vec<String>>,
 }
 
 impl DynamicStyleBuilder {
@@ -19,7 +19,7 @@ impl DynamicStyleBuilder {
         DynamicStyleBuilder {
             background: None,
             foreground: None,
-            set: None,
+            modifiers: None,
         }
     }
 
@@ -33,10 +33,10 @@ impl DynamicStyleBuilder {
         self
     }
 
-    pub fn add_set_item(mut self, set_item: String) -> DynamicStyleBuilder {
-        match self.set {
-            Some(ref mut vector) => vector.push(set_item),
-            None => self.set = Some(vec![set_item]),
+    pub fn add_modifier(mut self, modifier: String) -> DynamicStyleBuilder {
+        match self.modifiers {
+            Some(ref mut vector) => vector.push(modifier),
+            None => self.modifiers = Some(vec![modifier]),
         }
         self
     }
@@ -46,7 +46,7 @@ impl StyleBuilder for DynamicStyleBuilder {
         Style {
             background: self.background,
             foreground: self.foreground,
-            set: self.set,
+            modifiers: self.modifiers,
         }
     }
 }
