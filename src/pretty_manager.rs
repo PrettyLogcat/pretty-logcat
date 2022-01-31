@@ -33,7 +33,7 @@ impl PrettyManager {
     }
 
     pub fn generate_pretties(&mut self, data: &Data) -> Vec<Pretty> {
-        let mut pretties = Vec::new();
+        let mut pretties = Vec::<Pretty>::new();
         for (index, item) in data.contents.iter().enumerate() {
             let index_str = &format!("{}", index);
             let style: Rc<Style> = match self.randomic_formated.get(index_str) {
@@ -109,8 +109,7 @@ impl PrettyManager {
                     },
                 },
             };
-            let pretty = Pretty::new(style, item.to_string());
-            pretties.push(pretty)
+            pretties.push(Pretty::new(style, item.to_string()))
         }
         pretties
     }
