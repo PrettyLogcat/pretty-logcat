@@ -4,50 +4,37 @@ use crate::data::{Data, DataBuilder};
 
 pub struct Parser {
     regex: Regex,
+    group_count: u8,
 }
 
 pub struct ParserData {
-    data: [String; 7],
+    data: Vec<String>,
 }
 
 impl Parser {
-    pub fn new() -> Parser {
+    pub fn new(regex: &str, group_count: u8) -> Parser {
         Parser {
-            regex: Regex::new(r"(\d{2}-\d{2})\s(\d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s+(\w)\s(.+:)(.+)").unwrap()
+            regex: Regex::new(regex).unwrap(),
+            group_count: group_count,
         }
     }
 
     pub fn parse(&self, data: &String) -> Option<ParserData> {
         match self.regex.captures(&data[..]) {
-            Some(capture) => Some(
-                ParserData {
-                    data: [
-                        String::from(&capture[1]),
-                        String::from(&capture[2]),
-                        String::from(&capture[3]),
-                        String::from(&capture[4]),
-                        String::from(&capture[5]),
-                        String::from(&capture[6]),
-                        String::from(&capture[7]),
-                    ],
+            Some(capture) => {
+                let mut data = Vec::new();
+                for offset in 1..self.group_count + 1 {
+                    data.push(String::from(&capture[offset as usize]));
                 }
-            ),
-            None => None
+                Some(ParserData { data: data })
+            }
+            None => None,
         }
     }
 }
 
 impl DataBuilder for ParserData {
-    fn build(&self) -> Data {
-        let data = &self.data;
-        Data {
-            date: String::from(&data[0]),
-            time: String::from(&data[1]),
-            pid: String::from(&data[2]),
-            tid: String::from(&data[3]),
-            package_priority: String::from(&data[4]),
-            tag: String::from(&data[5]),
-            message: String::from(&data[6]),
-        }
+    fn build(self) -> Data {
+        Data { contents: self.data }
     }
 }

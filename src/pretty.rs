@@ -6,24 +6,14 @@ use crate::style::Style;
 pub struct Pretty {
     pub text: Option<String>,
     pub style: Rc<Style>,
-    pub pretty: Option<Box<Pretty>>,
 }
 
 impl Pretty {
-    pub fn new(style: Rc<Style>) -> Pretty {
+    pub fn new(style: Rc<Style>, text: String) -> Pretty {
         Pretty {
-            text: None,
+            text: Some(text),
             style: style,
-            pretty: None,
         }
-    }
-
-    pub fn add_pretty(&mut self, pretty: Pretty) {
-        self.pretty = Some(Box::new(pretty))
-    }
-
-    pub fn add_text(&mut self, text: String) {
-        self.text = Some(text)
     }
 }
 
@@ -57,12 +47,9 @@ impl Display for Pretty {
         let to_write = &format!(
             "\x1b[{style}m{data}\x1b[0m",
             style = style_string,
-            data = match self.pretty {
-                Some(ref pretty) => pretty.to_string(),
-                None => match self.text {
-                    Some(ref text) => text.to_string(),
-                    None => "".to_string(),
-                },
+            data = match self.text {
+                Some(ref text) => text.to_string(),
+                None => "".to_string(),
             },
         )[..];
         f.write_str(to_write)

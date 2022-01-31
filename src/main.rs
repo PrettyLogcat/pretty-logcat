@@ -1,35 +1,42 @@
+mod configuration;
 mod data;
 mod parser;
 mod pretty;
+mod pretty_manager;
 mod style;
-mod style_manager;
 
-use std::io;
+use std::{fs, io};
 
+use configuration::Configuration;
 use data::Data;
 use parser::Parser;
-use pretty::Pretty;
-use style_manager::StyleManager;
+use pretty_manager::PrettyManager;
 
 fn main() {
+    let file = fs::read_to_string("./configuration.json").unwrap();
+    let configuration: Configuration = serde_json::from_str(&file[..]).unwrap();
+
     let stdin = io::stdin();
     let mut buffer = String::new();
 
-    let parser = Parser::new();
-    let mut style_manager = StyleManager::new();
+    let parser = Parser::new(&configuration.regex.text, configuration.regex.group_count);
+    let mut pretty_manager = PrettyManager::new(
+        configuration.pre_formated,
+        configuration.regex.group_offset as usize,
+    );
 
     loop {
         match stdin.read_line(&mut buffer) {
             Err(err) => panic!("Some error occurred: {}", err),
             Ok(_) => match parser.parse(&buffer) {
                 Some(parsed) => {
-                    let data = Data::new(&parsed);
-                    let style = style_manager.get_style(&data.tag);
-                    let mut pretty = Pretty::new(style);
-                    pretty.add_text(data.to_string());
-                    println!("{}", pretty);
+                    let data = Data::new(parsed);
+                    let pretties = pretty_manager.generate_pretties(&data);
+                    let mapped: Vec<String> = pretties.into_iter().map(|p| p.to_string()).collect();
+                    let result = mapped.join(" ");
+                    println!("{}", result);
                 }
-                None => println!("NOT: {}", buffer),
+                None => println!("{}", buffer),
             },
         };
         buffer.clear();

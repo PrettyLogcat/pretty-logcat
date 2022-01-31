@@ -23,22 +23,19 @@ impl DynamicStyleBuilder {
         }
     }
 
-    pub fn add_background(mut self, background: String) -> DynamicStyleBuilder {
+    pub fn add_background(&mut self, background: String) {
         self.background = Some(background);
-        self
     }
 
-    pub fn add_foreground(mut self, foreground: String) -> DynamicStyleBuilder {
+    pub fn add_foreground(&mut self, foreground: String) {
         self.foreground = Some(foreground);
-        self
     }
 
-    pub fn add_modifier(mut self, modifier: String) -> DynamicStyleBuilder {
+    pub fn add_modifier(&mut self, modifier: String) {
         match self.modifiers {
             Some(ref mut vector) => vector.push(modifier),
             None => self.modifiers = Some(vec![modifier]),
         }
-        self
     }
 }
 impl StyleBuilder for DynamicStyleBuilder {
