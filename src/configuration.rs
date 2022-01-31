@@ -13,18 +13,22 @@ pub struct Colors {
 pub struct Regex {
     pub text: String,
     pub group_count: u8,
-    pub group_offset: u8,
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct PreFormated {
-    pub background: u16,
-    pub foreground: u16,
+pub struct Theme {
+    pub background: Option<u16>,
+    pub foreground: Option<u16>,
+    pub modifiers: Vec<u8>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct Configuration {
     pub regex: Regex,
     pub colors: Colors,
-    pub pre_formated: HashMap<String, PreFormated>,
+    pub themes: HashMap<String, Theme>,
+    pub randomic_formated: u8,
+    pub combined_formated: HashMap<String, String>,
+    pub repeated_formated: HashMap<String, u8>,
+    pub fixed_formated: HashMap<String, String>,
 }

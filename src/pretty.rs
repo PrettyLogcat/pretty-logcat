@@ -22,23 +22,20 @@ impl Display for Pretty {
         let mut style_string = String::new();
         match self.style.background {
             Some(ref value) => {
-                style_string.push_str(&value[..]);
-                style_string.push_str(";");
+                style_string.push_str(&format!("48;5;{};", value));
             }
             None => (),
         }
         match self.style.foreground {
             Some(ref value) => {
-                style_string.push_str(&value[..]);
-                style_string.push_str(";");
+                style_string.push_str(&format!("38;5;{};", value));
             }
             None => (),
         }
         match self.style.modifiers {
             Some(ref modifiers) => {
                 for modifier in modifiers {
-                    style_string.push_str(&modifier[..]);
-                    style_string.push_str(";");
+                    style_string.push_str(&format!("{};", modifier));
                 }
             }
             None => (),
@@ -51,7 +48,7 @@ impl Display for Pretty {
                 Some(ref text) => text.to_string(),
                 None => "".to_string(),
             },
-        )[..];
+        );
         f.write_str(to_write)
     }
 }

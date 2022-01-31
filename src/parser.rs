@@ -20,7 +20,7 @@ impl Parser {
     }
 
     pub fn parse(&self, data: &String) -> Option<ParserData> {
-        match self.regex.captures(&data[..]) {
+        match self.regex.captures(&data) {
             Some(capture) => {
                 let mut data = Vec::new();
                 for offset in 1..self.group_count + 1 {

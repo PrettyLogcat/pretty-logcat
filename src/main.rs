@@ -14,15 +14,18 @@ use pretty_manager::PrettyManager;
 
 fn main() {
     let file = fs::read_to_string("./configuration.json").unwrap();
-    let configuration: Configuration = serde_json::from_str(&file[..]).unwrap();
+    let configuration: Configuration = serde_json::from_str(&file).unwrap();
 
     let stdin = io::stdin();
     let mut buffer = String::new();
 
     let parser = Parser::new(&configuration.regex.text, configuration.regex.group_count);
     let mut pretty_manager = PrettyManager::new(
-        configuration.pre_formated,
-        configuration.regex.group_offset as usize,
+        configuration.themes,
+        configuration.randomic_formated as usize,
+        configuration.combined_formated,
+        configuration.repeated_formated,
+        configuration.fixed_formated
     );
 
     loop {
