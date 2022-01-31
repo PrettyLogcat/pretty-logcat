@@ -23,12 +23,17 @@ pub struct Theme {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct ConditionalFormated {
+    pub comparission_offset: usize,
+    pub themes: HashMap<String, String>
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct Configuration {
     pub regex: Regex,
     pub colors: Colors,
     pub themes: HashMap<String, Theme>,
     pub randomic_formated: u8,
-    pub combined_formated: HashMap<String, String>,
-    pub repeated_formated: HashMap<String, u8>,
+    pub conditional_formated: HashMap<String, ConditionalFormated>,
     pub fixed_formated: HashMap<String, String>,
 }

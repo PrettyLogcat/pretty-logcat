@@ -3,7 +3,7 @@ use std::collections::{hash_map::DefaultHasher, HashMap};
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
-use crate::configuration::Theme;
+use crate::configuration::{ConditionalFormated, Theme};
 use crate::data::Data;
 use crate::pretty::Pretty;
 use crate::style::{DynamicStyleBuilder, Style};
@@ -12,8 +12,7 @@ pub struct PrettyManager {
     cache: HashMap<u64, Rc<Style>>,
     themes: HashMap<String, Theme>,
     randomic_formated: usize,
-    combined_formated: HashMap<String, String>,
-    repeated_formated: HashMap<String, u8>,
+    conditional_formated: HashMap<String, ConditionalFormated>,
     fixed_formated: HashMap<String, String>,
 }
 
@@ -21,16 +20,14 @@ impl PrettyManager {
     pub fn new(
         themes: HashMap<String, Theme>,
         randomic_formated: usize,
-        combined_formated: HashMap<String, String>,
-        repeated_formated: HashMap<String, u8>,
+        conditional_formated: HashMap<String, ConditionalFormated>,
         fixed_formated: HashMap<String, String>,
     ) -> PrettyManager {
         PrettyManager {
             cache: HashMap::<u64, Rc<Style>>::new(),
             themes: themes,
             randomic_formated: randomic_formated,
-            combined_formated: combined_formated,
-            repeated_formated: repeated_formated,
+            conditional_formated: conditional_formated,
             fixed_formated: fixed_formated,
         }
     }
@@ -70,38 +67,37 @@ impl PrettyManager {
                         rc_style
                     }
                 }
-            } else if self.repeated_formated.contains_key(index_str) {
-                let offset = *self.repeated_formated.get(index_str).unwrap() as usize;
-                let content = &data.contents[offset];
-                let hash = PrettyManager::calculate_hash(content);
-                let rc_style = self.cache.get(&hash).unwrap();
-                Rc::clone(rc_style)
             } else {
-                let combined_formated_key = &format!("{}{}", index, item);
-                match self.combined_formated.get(combined_formated_key) {
-                    Some(theme_str) => {
-                        let hash = PrettyManager::calculate_hash(item);
-                        match self.cache.get(&hash) {
-                            Some(style) => Rc::clone(style),
-                            None => {
-                                let theme: &Theme = self.themes.get(theme_str).unwrap();
-                                let mut dynamic_style = DynamicStyleBuilder::new();
-                                match theme.background {
-                                    Some(value) => {
-                                        dynamic_style.add_background(format!("{}", value))
+                match self.conditional_formated.get(index_str) {
+                    Some(conditional_formated) => {
+                        let comparission_offset = conditional_formated.comparission_offset;
+                        match conditional_formated.themes.get(&data.contents[comparission_offset]) {
+                            Some(theme_str) => {
+                                let hash = PrettyManager::calculate_hash(theme_str);
+                                match self.cache.get(&hash) {
+                                    Some(rc_style) => Rc::clone(rc_style),
+                                    None => {
+                                        let theme: &Theme = self.themes.get(theme_str).unwrap();
+                                        let mut dynamic_style = DynamicStyleBuilder::new();
+                                        match theme.background {
+                                            Some(value) => {
+                                                dynamic_style.add_background(format!("{}", value))
+                                            }
+                                            None => (),
+                                        };
+                                        match theme.foreground {
+                                            Some(value) => {
+                                                dynamic_style.add_foreground(format!("{}", value))
+                                            }
+                                            None => (),
+                                        };
+                                        let rc_style = Rc::new(Style::new(dynamic_style));
+                                        self.cache.insert(hash, Rc::clone(&rc_style));
+                                        rc_style
                                     }
-                                    None => (),
                                 }
-                                match theme.foreground {
-                                    Some(value) => {
-                                        dynamic_style.add_foreground(format!("{}", value))
-                                    }
-                                    None => (),
-                                }
-                                let rc_style = Rc::new(Style::new(dynamic_style));
-                                self.cache.insert(hash, Rc::clone(&rc_style));
-                                rc_style
-                            }
+                            },
+                            None => Rc::new(Style::new(DynamicStyleBuilder::new()))
                         }
                     }
                     None => {
@@ -109,10 +105,7 @@ impl PrettyManager {
                         match self.cache.get(&hash) {
                             Some(rc_style) => Rc::clone(rc_style),
                             None => {
-                                let mut dynamic_style = DynamicStyleBuilder::new();
-                                //dynamic_style.add_background(format!("{}", 0));
-                                //dynamic_style.add_foreground(format!("{}", 0));
-                                let style = Rc::new(Style::new(dynamic_style));
+                                let style = Rc::new(Style::new(DynamicStyleBuilder::new()));
                                 self.cache.insert(hash, Rc::clone(&style));
                                 style
                             }

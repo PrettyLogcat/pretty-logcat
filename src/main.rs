@@ -23,8 +23,7 @@ fn main() {
     let mut pretty_manager = PrettyManager::new(
         configuration.themes,
         configuration.randomic_formated as usize,
-        configuration.combined_formated,
-        configuration.repeated_formated,
+        configuration.conditional_formated,
         configuration.fixed_formated
     );
 
