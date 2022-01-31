@@ -4,7 +4,6 @@ use crate::data::{Data, DataBuilder};
 
 pub struct Parser {
     regex: Regex,
-    group_count: u8,
 }
 
 pub struct ParserData {
@@ -12,21 +11,21 @@ pub struct ParserData {
 }
 
 impl Parser {
-    pub fn new(regex: &str, group_count: u8) -> Parser {
+    pub fn new(regex: &str) -> Parser {
         Parser {
             regex: Regex::new(regex).unwrap(),
-            group_count: group_count,
         }
     }
 
     pub fn parse(&self, data: &String) -> Option<ParserData> {
         match self.regex.captures(&data) {
             Some(capture) => {
+                let len = capture.len();
                 let mut data = Vec::new();
-                for offset in 1..self.group_count + 1 {
+                for offset in 1..len {
                     data.push(String::from(&capture[offset as usize]));
                 }
-                Some(ParserData { data: data })
+                Some(ParserData { data })
             }
             None => None,
         }
@@ -35,6 +34,8 @@ impl Parser {
 
 impl DataBuilder for ParserData {
     fn build(self) -> Data {
-        Data { contents: self.data }
+        Data {
+            contents: self.data,
+        }
     }
 }

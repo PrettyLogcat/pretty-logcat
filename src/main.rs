@@ -19,7 +19,8 @@ fn main() {
     let stdin = io::stdin();
     let mut buffer = String::new();
 
-    let parser = Parser::new(&configuration.regex.text, configuration.regex.group_count);
+    let parser = Parser::new(&configuration.regex);
+
     let mut pretty_manager = PrettyManager::new(
         configuration.themes,
         configuration.randomic_formated,
