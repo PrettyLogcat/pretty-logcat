@@ -22,9 +22,9 @@ fn main() {
     let parser = Parser::new(&configuration.regex.text, configuration.regex.group_count);
     let mut pretty_manager = PrettyManager::new(
         configuration.themes,
-        configuration.randomic_formated as usize,
+        configuration.randomic_formated,
         configuration.conditional_formated,
-        configuration.fixed_formated
+        configuration.fixed_formated,
     );
 
     loop {

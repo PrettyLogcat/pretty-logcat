@@ -536,7 +536,7 @@
     "themes": {
         "debug": {
             "background": 20,
-            "foreground": 256,
+            "foreground": 255,
             "modifiers": []
         },
         "debug_foreground": {
@@ -545,7 +545,7 @@
         },
         "information": {
             "background": 40,
-            "foreground": 256,
+            "foreground": 255,
             "modifiers": []
         },
         "information_foreground": {
@@ -554,7 +554,7 @@
         },
         "error": {
             "background": 1,
-            "foreground": 256,
+            "foreground": 255,
             "modifiers": []
         },
         "error_foreground": {
@@ -563,7 +563,7 @@
         },
         "warn": {
             "background": 208,
-            "foreground": 256,
+            "foreground": 255,
             "modifiers": []
         },
         "warn_foreground": {
@@ -572,7 +572,7 @@
         },
         "verbose": {
             "background": 14,
-            "foreground": 256,
+            "foreground": 255,
             "modifiers": []
         },
         "verbose_foreground": {
@@ -584,7 +584,9 @@
             "modifiers": []
         }
     },
-    "randomic_formated": 9,
+    "randomic_formated": {
+        "5": "5"
+    },
     "conditional_formated": {
         "4": {
             "comparission_offset": 4,
