@@ -38,6 +38,7 @@ impl DynamicStyleBuilder {
         }
     }
 }
+
 impl StyleBuilder for DynamicStyleBuilder {
     fn build(self) -> Style {
         Style {

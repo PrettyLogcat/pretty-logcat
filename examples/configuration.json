@@ -576,17 +576,22 @@
             "foreground": 14,
             "modifiers": []
         },
-        "random": {
+        "generic_theme": {
             "foreground": 129,
             "modifiers": []
         }
     },
     "randomic_formated": {
-        "5": "5"
+        "indexes": {
+            "5": "we_dont_use_it"
+        },
+        "indexes_to_repeat": {
+            "6": 5
+        }
     },
     "conditional_formated": {
         "4": {
-            "comparission_offset": 4,
+            "from_where": 4,
             "themes": {
                 "D": "debug",
                 "I": "information",
@@ -596,7 +601,7 @@
             }
         },
         "6": {
-            "comparission_offset": 4,
+            "from_where": 4,
             "themes": {
                 "D": "debug_foreground",
                 "I": "information_foreground",
@@ -607,7 +612,7 @@
         }
     },
     "fixed_formated": {
-        "0": "random",
-        "1": "random"
+        "0": "generic_theme",
+        "1": "generic_theme"
     }
 }

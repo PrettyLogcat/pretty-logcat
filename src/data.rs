@@ -2,9 +2,7 @@ pub trait DataBuilder {
     fn build(self) -> Data;
 }
 
-pub struct Data {
-    pub contents: Vec<String>
-}
+pub struct Data(pub Vec<String>);
 
 impl Data {
     pub fn new<T: DataBuilder>(builder: T) -> Data {
@@ -14,6 +12,6 @@ impl Data {
 
 impl ToString for Data {
     fn to_string(&self) -> String {
-        self.contents.join(" ")
+        self.0.join(" ")
     }
 }
