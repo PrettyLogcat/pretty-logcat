@@ -5,7 +5,6 @@ mod pretty;
 mod pretty_manager;
 mod style;
 
-use std::rc::Rc;
 use std::{fs::read_to_string, io::stdin};
 
 use serde_json;

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use serde::{Deserialize, Serialize};
 
@@ -11,21 +11,21 @@ pub struct Colors {
 
 #[derive(Serialize, Deserialize)]
 pub struct Theme {
-    pub background: Option<u16>,
-    pub foreground: Option<u16>,
-    pub modifiers: Vec<u8>,
+    pub background: Option<u8>,
+    pub foreground: Option<u8>,
+    pub modifiers: Option<Vec<u8>>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct ConditionalFormated {
     pub from_where: usize,
-    pub themes: HashMap<String, String>
+    pub themes: HashMap<String, String>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct RandomicFormated {
-    pub indexes: HashMap<String, String>,
-    pub indexes_to_repeat: HashMap<String, usize>
+    pub indexes: HashSet<usize>,
+    pub indexes_to_repeat: HashMap<String, usize>,
 }
 
 #[derive(Serialize, Deserialize)]

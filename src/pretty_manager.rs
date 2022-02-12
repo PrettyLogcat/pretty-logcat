@@ -8,6 +8,51 @@ use crate::data::Data;
 use crate::pretty::Pretty;
 use crate::style::{DynamicStyleBuilder, Style};
 
+trait Hashable {
+    fn to_hash(&self) -> u64;
+}
+
+impl Hashable for String {
+    fn to_hash(&self) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        self.hash(&mut hasher);
+        hasher.finish()
+    }
+}
+
+trait Stylable {
+    fn to_style(&self) -> Style;
+}
+
+impl Stylable for Theme {
+    fn to_style(&self) -> Style {
+        let mut dynamic_style = DynamicStyleBuilder::new();
+        match self.background {
+            Some(value) => dynamic_style.add_background(format!("{}", value)),
+            None => (),
+        }
+        match self.foreground {
+            Some(value) => dynamic_style.add_foreground(format!("{}", value)),
+            None => (),
+        }
+        match self.modifiers {
+            Some(ref modifiers) => {
+                for value in modifiers {
+                    dynamic_style.add_modifier(format!("{}", *value))
+                }
+            }
+            None => (),
+        }
+        Style::new(dynamic_style)
+    }
+}
+
+impl Stylable for () {
+    fn to_style(&self) -> Style {
+        Style::new(DynamicStyleBuilder::new())
+    }
+}
+
 pub struct PrettyManager {
     cache: HashMap<u64, Rc<Style>>,
     colors: Colors,
@@ -36,16 +81,16 @@ impl PrettyManager {
     }
 
     pub fn generate_pretties(&mut self, data: &Data) -> Vec<Pretty> {
-        let mut pretties = Vec::<Pretty>::new();
+        let mut pretties = Vec::new();
         for (index, item) in data.0.iter().enumerate() {
             let index_str = &format!("{}", index);
-            let style: Rc<Style> = match self.randomic_formated.indexes.get(index_str) {
+            let style: Rc<Style> = match self.randomic_formated.indexes.get(&index) {
                 Some(_) => {
-                    let hash = PrettyManager::calculate_hash(item);
+                    let hash = item.to_hash();
                     match self.cache.get(&hash) {
                         Some(style) => Rc::clone(style),
                         None => {
-                            let style = Rc::new(PrettyManager::generate_style());
+                            let style = Rc::new(().to_style());
                             self.cache.insert(hash, Rc::clone(&style));
                             style
                         }
@@ -54,31 +99,18 @@ impl PrettyManager {
                 None => match self.randomic_formated.indexes_to_repeat.get(index_str) {
                     Some(from_where) => {
                         let content = &data.0[*from_where];
-                        let hash = PrettyManager::calculate_hash(content);
+                        let hash = content.to_hash();
                         let rc_style = self.cache.get(&hash).unwrap();
                         Rc::clone(rc_style)
                     }
                     None => match self.fixed_formated.get(index_str) {
                         Some(theme_str) => {
-                            let hash = PrettyManager::calculate_hash(theme_str);
+                            let hash = theme_str.to_hash();
                             match self.cache.get(&hash) {
                                 Some(rc_style) => Rc::clone(rc_style),
                                 None => {
-                                    let theme: &Theme = self.themes.get(theme_str).unwrap();
-                                    let mut dynamic_style = DynamicStyleBuilder::new();
-                                    match theme.background {
-                                        Some(value) => {
-                                            dynamic_style.add_background(format!("{}", value))
-                                        }
-                                        None => (),
-                                    }
-                                    match theme.foreground {
-                                        Some(value) => {
-                                            dynamic_style.add_foreground(format!("{}", value))
-                                        }
-                                        None => (),
-                                    }
-                                    let rc_style = Rc::new(Style::new(dynamic_style));
+                                    let theme = self.themes.get(theme_str).unwrap();
+                                    let rc_style = Rc::new(theme.to_style());
                                     self.cache.insert(hash, Rc::clone(&rc_style));
                                     rc_style
                                 }
@@ -90,24 +122,12 @@ impl PrettyManager {
                                 let content = &data.0[from_where];
                                 match conditional_formated.themes.get(content) {
                                     Some(theme_str) => {
-                                        let hash = PrettyManager::calculate_hash(theme_str);
+                                        let hash = theme_str.to_hash();
                                         match self.cache.get(&hash) {
                                             Some(rc_style) => Rc::clone(rc_style),
                                             None => {
-                                                let theme: &Theme =
-                                                    self.themes.get(theme_str).unwrap();
-                                                let mut dynamic_style = DynamicStyleBuilder::new();
-                                                match theme.background {
-                                                    Some(value) => dynamic_style
-                                                        .add_background(format!("{}", value)),
-                                                    None => (),
-                                                };
-                                                match theme.foreground {
-                                                    Some(value) => dynamic_style
-                                                        .add_foreground(format!("{}", value)),
-                                                    None => (),
-                                                };
-                                                let rc_style = Rc::new(Style::new(dynamic_style));
+                                                let theme = self.themes.get(theme_str).unwrap();
+                                                let rc_style = Rc::new(theme.to_style());
                                                 self.cache.insert(hash, Rc::clone(&rc_style));
                                                 rc_style
                                             }
@@ -124,36 +144,5 @@ impl PrettyManager {
             pretties.push(Pretty::new(style, item.to_string()))
         }
         pretties
-    }
-
-    fn calculate_hash(data: &String) -> u64 {
-        let mut hasher = DefaultHasher::new();
-        data.hash(&mut hasher);
-        hasher.finish()
-    }
-
-    fn generate_style() -> Style {
-        let mut dynamic_style = DynamicStyleBuilder::new();
-        //dynamic_style.add_background(PrettyManager::generate_background());
-        dynamic_style.add_foreground(PrettyManager::generate_foreground());
-        Style::new(dynamic_style)
-    }
-
-    fn generate_random() -> u8 {
-        let mut rng = rand::thread_rng();
-        rng.gen()
-    }
-
-    fn generate_foreground() -> String {
-        format!("{}", PrettyManager::generate_random())
-    }
-
-    fn generate_background() -> String {
-        format!("{}", PrettyManager::generate_random())
-    }
-
-    fn generate_modifier() -> String {
-        let num = PrettyManager::generate_random() % 9;
-        format!("{}", if num == 0 { 1 } else { num })
     }
 }
