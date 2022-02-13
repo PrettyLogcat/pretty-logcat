@@ -39,7 +39,7 @@ impl Stylable for Theme {
         match self.modifiers {
             Some(ref modifiers) => {
                 for value in modifiers {
-                    dynamic_style.add_modifier(format!("{}", *value))
+                    dynamic_style.add_modifier(format!("{}", value))
                 }
             }
             None => (),
@@ -55,26 +55,20 @@ impl Stylable for Colors {
         let mut dynamic_style_builder = DynamicStyleBuilder::new();
 
         match self.backgrounds {
-            Some(ref backgrounds) => dynamic_style_builder.add_background(format!(
-                "{}",
-                backgrounds.iter().choose_stable(&mut rng).unwrap()
-            )),
+            Some(ref backgrounds) => dynamic_style_builder
+                .add_background(format!("{}", backgrounds.iter().choose(&mut rng).unwrap())),
             None => (),
         }
 
         match self.foregrounds {
-            Some(ref foregrounds) => dynamic_style_builder.add_foreground(format!(
-                "{}",
-                foregrounds.iter().choose_stable(&mut rng).unwrap()
-            )),
+            Some(ref foregrounds) => dynamic_style_builder
+                .add_foreground(format!("{}", foregrounds.iter().choose(&mut rng).unwrap())),
             None => (),
         }
 
         match self.modifiers {
-            Some(ref modifiers) => dynamic_style_builder.add_modifier(format!(
-                "{}",
-                modifiers.iter().choose_stable(&mut rng).unwrap()
-            )),
+            Some(ref modifiers) => dynamic_style_builder
+                .add_modifier(format!("{}", modifiers.iter().choose(&mut rng).unwrap())),
             None => (),
         }
 
@@ -118,11 +112,7 @@ impl PrettyManager {
                     let hash = item.to_hash();
                     match self.cache.get(&hash) {
                         Some(style) => Rc::clone(style),
-                        None => {
-                            let style = Rc::new(self.colors.to_style());
-                            self.cache.insert(hash, Rc::clone(&style));
-                            style
-                        }
+                        None => self.cache_style(hash, self.colors.to_style()),
                     }
                 }
                 None => match self.randomic_formated.indexes_to_repeat.get(index_str) {
@@ -138,10 +128,8 @@ impl PrettyManager {
                             match self.cache.get(&hash) {
                                 Some(rc_style) => Rc::clone(rc_style),
                                 None => {
-                                    let theme = self.themes.get(theme_str).unwrap();
-                                    let rc_style = Rc::new(theme.to_style());
-                                    self.cache.insert(hash, Rc::clone(&rc_style));
-                                    rc_style
+                                    let style = self.themes.get(theme_str).unwrap().to_style();
+                                    self.cache_style(hash, style)
                                 }
                             }
                         }
@@ -155,10 +143,9 @@ impl PrettyManager {
                                         match self.cache.get(&hash) {
                                             Some(rc_style) => Rc::clone(rc_style),
                                             None => {
-                                                let theme = self.themes.get(theme_str).unwrap();
-                                                let rc_style = Rc::new(theme.to_style());
-                                                self.cache.insert(hash, Rc::clone(&rc_style));
-                                                rc_style
+                                                let style =
+                                                    self.themes.get(theme_str).unwrap().to_style();
+                                                self.cache_style(hash, style)
                                             }
                                         }
                                     }
@@ -173,5 +160,11 @@ impl PrettyManager {
             pretties.push(Pretty::new(style, item.to_string()))
         }
         pretties
+    }
+
+    fn cache_style(&mut self, hash: u64, style: Style) -> Rc<Style> {
+        let rc_style = Rc::new(style);
+        self.cache.insert(hash, Rc::clone(&rc_style));
+        rc_style
     }
 }
