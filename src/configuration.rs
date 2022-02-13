@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Colors {
-    background: Vec<u16>,
-    foreground: Vec<u16>,
-    modifiers: Vec<u8>,
+    pub backgrounds: Option<Vec<u8>>,
+    pub foregrounds: Option<Vec<u8>>,
+    pub modifiers: Option<Vec<u8>>,
 }
 
 #[derive(Serialize, Deserialize)]

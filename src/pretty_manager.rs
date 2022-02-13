@@ -1,7 +1,8 @@
-use rand::Rng;
 use std::collections::{hash_map::DefaultHasher, HashMap};
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
+
+use rand::seq::IteratorRandom;
 
 use crate::configuration::{Colors, ConditionalFormated, RandomicFormated, Theme};
 use crate::data::Data;
@@ -47,9 +48,37 @@ impl Stylable for Theme {
     }
 }
 
-impl Stylable for () {
+impl Stylable for Colors {
     fn to_style(&self) -> Style {
-        Style::new(DynamicStyleBuilder::new())
+        let mut rng = rand::thread_rng();
+
+        let mut dynamic_style_builder = DynamicStyleBuilder::new();
+
+        match self.backgrounds {
+            Some(ref backgrounds) => dynamic_style_builder.add_background(format!(
+                "{}",
+                backgrounds.iter().choose_stable(&mut rng).unwrap()
+            )),
+            None => (),
+        }
+
+        match self.foregrounds {
+            Some(ref foregrounds) => dynamic_style_builder.add_foreground(format!(
+                "{}",
+                foregrounds.iter().choose_stable(&mut rng).unwrap()
+            )),
+            None => (),
+        }
+
+        match self.modifiers {
+            Some(ref modifiers) => dynamic_style_builder.add_modifier(format!(
+                "{}",
+                modifiers.iter().choose_stable(&mut rng).unwrap()
+            )),
+            None => (),
+        }
+
+        Style::new(dynamic_style_builder)
     }
 }
 
@@ -71,7 +100,7 @@ impl PrettyManager {
         fixed_formated: HashMap<String, String>,
     ) -> PrettyManager {
         PrettyManager {
-            cache: HashMap::<u64, Rc<Style>>::new(),
+            cache: HashMap::new(),
             colors: colors,
             themes: themes,
             randomic_formated: randomic_formated,
@@ -90,7 +119,7 @@ impl PrettyManager {
                     match self.cache.get(&hash) {
                         Some(style) => Rc::clone(style),
                         None => {
-                            let style = Rc::new(().to_style());
+                            let style = Rc::new(self.colors.to_style());
                             self.cache.insert(hash, Rc::clone(&style));
                             style
                         }
