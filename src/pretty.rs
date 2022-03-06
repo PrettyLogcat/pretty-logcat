@@ -4,14 +4,14 @@ use std::rc::Rc;
 use crate::style::Style;
 
 pub struct Pretty<'a> {
-    pub text: Option<&'a str>,
+    pub text: &'a str,
     pub style: Rc<Style>,
 }
 
 impl<'a> Pretty<'a> {
     pub fn new(style: Rc<Style>, text: &'a str) -> Pretty<'a> {
         Pretty {
-            text: Some(text),
+            text: text,
             style: style,
         }
     }
@@ -45,10 +45,7 @@ impl<'a> Display for Pretty<'a> {
         let to_write = &format!(
             "\x1b[{style}m{data}\x1b[0m",
             style = style_string,
-            data = match self.text {
-                Some(ref text) => text,
-                None => "",
-            },
+            data = self.text,
         );
         f.write_str(to_write)
     }
