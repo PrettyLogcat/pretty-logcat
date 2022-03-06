@@ -13,6 +13,14 @@ trait Hashable {
     fn to_hash(&self) -> u64;
 }
 
+impl Hashable for &str {
+    fn to_hash(&self) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        self.hash(&mut hasher);
+        hasher.finish()
+    }
+}
+
 impl Hashable for String {
     fn to_hash(&self) -> u64 {
         let mut hasher = DefaultHasher::new();
@@ -103,16 +111,20 @@ impl PrettyManager {
         }
     }
 
-    pub fn generate_pretties(&mut self, data: &Data) -> Vec<Pretty> {
+    pub fn generate_pretties<'a>(&mut self, data: Data<'a>) -> Vec<Pretty<'a>> {
         let mut pretties = Vec::new();
         for (index, item) in data.0.iter().enumerate() {
             let index_str = &format!("{}", index);
-            let style: Rc<Style> = match self.randomic_formated.indexes.get(&index) {
+            let rc_style_option_hash: (Rc<Style>, Option<u64>) = match self
+                .randomic_formated
+                .indexes
+                .get(&index)
+            {
                 Some(_) => {
                     let hash = item.to_hash();
                     match self.cache.get(&hash) {
-                        Some(style) => Rc::clone(style),
-                        None => self.cache_style(hash, self.colors.to_style()),
+                        Some(style) => (Rc::clone(style), None),
+                        None => (Rc::new(self.colors.to_style()), Some(hash)),
                     }
                 }
                 None => match self.randomic_formated.indexes_to_repeat.get(index_str) {
@@ -120,51 +132,51 @@ impl PrettyManager {
                         let content = &data.0[*from_where];
                         let hash = content.to_hash();
                         let rc_style = self.cache.get(&hash).unwrap();
-                        Rc::clone(rc_style)
+                        (Rc::clone(rc_style), None)
                     }
                     None => match self.fixed_formated.get(index_str) {
                         Some(theme_str) => {
                             let hash = theme_str.to_hash();
                             match self.cache.get(&hash) {
-                                Some(rc_style) => Rc::clone(rc_style),
+                                Some(rc_style) => (Rc::clone(rc_style), None),
                                 None => {
                                     let style = self.themes.get(theme_str).unwrap().to_style();
-                                    self.cache_style(hash, style)
+                                    (Rc::new(style), Some(hash))
                                 }
                             }
                         }
                         None => match self.conditional_formated.get(index_str) {
                             Some(conditional_formated) => {
                                 let from_where = conditional_formated.from_where;
-                                let content = &data.0[from_where];
+                                let content = data.0[from_where];
                                 match conditional_formated.themes.get(content) {
                                     Some(theme_str) => {
                                         let hash = theme_str.to_hash();
                                         match self.cache.get(&hash) {
-                                            Some(rc_style) => Rc::clone(rc_style),
+                                            Some(rc_style) => (Rc::clone(rc_style), None),
                                             None => {
                                                 let style =
                                                     self.themes.get(theme_str).unwrap().to_style();
-                                                self.cache_style(hash, style)
+                                                (Rc::new(style), Some(hash))
                                             }
                                         }
                                     }
-                                    None => Rc::new(Style::new(DynamicStyleBuilder::new())),
+                                    None => (Rc::new(Style::new(())), None),
                                 }
                             }
-                            None => Rc::new(Style::new(DynamicStyleBuilder::new())),
+                            None => (Rc::new(Style::new(())), None),
                         },
                     },
                 },
             };
-            pretties.push(Pretty::new(style, item.to_string()))
+            match rc_style_option_hash.1 {
+                Some(hash) => {
+                    self.cache.insert(hash, Rc::clone(&rc_style_option_hash.0));
+                }
+                None => (),
+            };
+            pretties.push(Pretty::new(rc_style_option_hash.0, item));
         }
         pretties
-    }
-
-    fn cache_style(&mut self, hash: u64, style: Style) -> Rc<Style> {
-        let rc_style = Rc::new(style);
-        self.cache.insert(hash, Rc::clone(&rc_style));
-        rc_style
     }
 }

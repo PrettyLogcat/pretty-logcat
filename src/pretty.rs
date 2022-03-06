@@ -3,13 +3,13 @@ use std::rc::Rc;
 
 use crate::style::Style;
 
-pub struct Pretty {
-    pub text: Option<String>,
+pub struct Pretty<'a> {
+    pub text: Option<&'a str>,
     pub style: Rc<Style>,
 }
 
-impl Pretty {
-    pub fn new(style: Rc<Style>, text: String) -> Pretty {
+impl<'a> Pretty<'a> {
+    pub fn new(style: Rc<Style>, text: &'a str) -> Pretty<'a> {
         Pretty {
             text: Some(text),
             style: style,
@@ -17,7 +17,7 @@ impl Pretty {
     }
 }
 
-impl Display for Pretty {
+impl<'a> Display for Pretty<'a> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         let mut style_string = String::new();
         match self.style.background {
@@ -40,13 +40,14 @@ impl Display for Pretty {
             }
             None => (),
         }
+        //last semicolon
         style_string.pop();
         let to_write = &format!(
             "\x1b[{style}m{data}\x1b[0m",
             style = style_string,
             data = match self.text {
-                Some(ref text) => text.to_string(),
-                None => "".to_string(),
+                Some(ref text) => text,
+                None => "",
             },
         );
         f.write_str(to_write)

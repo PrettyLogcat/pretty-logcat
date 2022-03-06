@@ -41,14 +41,13 @@ fn main() {
                 match parser.parse(&buffer) {
                     Some(parsed) => {
                         let data = Data::new(parsed);
-                        let pretties = pretty_manager.generate_pretties(&data);
-                        let mapped: Vec<String> =
-                            pretties.into_iter().map(|p| p.to_string()).collect();
+                        let pretties = pretty_manager.generate_pretties(data);
+                        let mapped: Vec<String> = pretties.iter().map(|p| p.to_string()).collect();
                         println!("{}", mapped.join(" "));
                     }
                     None => println!("{}", buffer),
                 };
-                buffer.clear()
+                buffer.clear();
             }
         };
     }

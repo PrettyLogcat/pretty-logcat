@@ -1,7 +1,7 @@
 {
     "regex": "(\\d{2}-\\d{2})\\s(\\d{2}:\\d{2}:\\d{2}\\.\\d{3})\\s+(\\d+)\\s+(\\d+)\\s+(\\w)\\s([\\w()-.\\s]+\\s{0,}:)\\s{0,}(.+)",
     "colors": {
-        "background": [
+        "backgrounds": [
             0,
             1,
             2,
@@ -257,10 +257,9 @@
             252,
             253,
             254,
-            255,
-            256
+            255
         ],
-        "foreground": [
+        "foregrounds": [
             0,
             1,
             2,
@@ -516,8 +515,7 @@
             252,
             253,
             254,
-            255,
-            256
+            255
         ],
         "modifiers": [
             1,
@@ -582,9 +580,9 @@
         }
     },
     "randomic_formated": {
-        "indexes": {
-            "5": "we_dont_use_it"
-        },
+        "indexes": [
+            5
+        ],
         "indexes_to_repeat": {
             "6": 5
         }

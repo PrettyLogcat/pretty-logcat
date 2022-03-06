@@ -49,6 +49,16 @@ impl StyleBuilder for DynamicStyleBuilder {
     }
 }
 
+impl StyleBuilder for () {
+    fn build(self) -> Style {
+        Style {
+            background: None,
+            foreground: None,
+            modifiers: None,
+        }
+    }
+}
+
 impl Style {
     pub fn new<T: StyleBuilder>(builder: T) -> Style {
         builder.build()

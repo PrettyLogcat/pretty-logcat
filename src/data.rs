@@ -1,16 +1,16 @@
-pub trait DataBuilder {
-    fn build(self) -> Data;
+pub trait DataBuilder<'a> {
+    fn build(self) -> Data<'a>;
 }
 
-pub struct Data(pub Vec<String>);
+pub struct Data<'a>(pub Vec<&'a str>);
 
-impl Data {
-    pub fn new<T: DataBuilder>(builder: T) -> Data {
+impl<'a> Data<'a> {
+    pub fn new<T: DataBuilder<'a>>(builder: T) -> Data<'a> {
         builder.build()
     }
 }
 
-impl ToString for Data {
+impl<'a> ToString for Data<'a> {
     fn to_string(&self) -> String {
         self.0.join(" ")
     }
