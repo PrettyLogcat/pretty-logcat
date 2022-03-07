@@ -14,10 +14,14 @@ impl Parser {
     pub fn parse<'a>(&self, data: &'a str) -> Option<ParserData<'a>> {
         match self.0.captures(&data) {
             Some(capture) => {
-                let len = capture.len();
                 let mut data = Vec::new();
-                for offset in 1..len {
-                    data.push(capture.get(offset).unwrap().as_str());
+                let mut sub_capture_matches = capture.iter();
+                //Skip first capture because it's always full string
+                sub_capture_matches.next();
+                while let Some(option_match) = sub_capture_matches.next() {
+                    if let Some(some_match) = option_match {
+                        data.push(some_match.as_str())
+                    }
                 }
                 Some(ParserData(data))
             }
