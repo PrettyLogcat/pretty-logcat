@@ -169,12 +169,9 @@ impl PrettyManager {
                     },
                 },
             };
-            match rc_style_option_hash.1 {
-                Some(hash) => {
-                    self.cache.insert(hash, Rc::clone(&rc_style_option_hash.0));
-                }
-                None => (),
-            };
+            if let Some(hash) = rc_style_option_hash.1 {
+                self.cache.insert(hash, Rc::clone(&rc_style_option_hash.0));
+            }
             pretties.push(Pretty::new(rc_style_option_hash.0, item));
         }
         pretties
