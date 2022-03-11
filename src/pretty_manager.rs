@@ -76,6 +76,12 @@ impl RefStyleBuilder for Colors {
     }
 }
 
+impl RefStyleBuilder for Option<&Theme> {
+    fn to_style(&self) -> Style {
+        self.unwrap().to_style()
+    }
+}
+
 pub struct PrettyManager {
     cache: HashMap<u64, Rc<Style>>,
     colors: Colors,
@@ -122,7 +128,7 @@ impl PrettyManager {
                             match self.cache.get(&hash) {
                                 Some(rc_style) => (Rc::clone(rc_style), None),
                                 None => {
-                                    let style = self.themes.get(theme_str).unwrap().to_style();
+                                    let style = self.themes.get(theme_str).to_style();
                                     (Rc::new(style), Some(hash))
                                 }
                             }
@@ -137,8 +143,7 @@ impl PrettyManager {
                                         match self.cache.get(&hash) {
                                             Some(rc_style) => (Rc::clone(rc_style), None),
                                             None => {
-                                                let style =
-                                                    self.themes.get(theme_str).unwrap().to_style();
+                                                let style = self.themes.get(theme_str).to_style();
                                                 (Rc::new(style), Some(hash))
                                             }
                                         }
