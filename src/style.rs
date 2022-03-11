@@ -4,8 +4,12 @@ pub struct Style {
     pub modifiers: Option<Vec<String>>,
 }
 
+pub trait RefStyleBuilder {
+    fn to_style(&self) -> Style;
+}
+
 pub trait StyleBuilder {
-    fn build(self) -> Style;
+    fn to_style(self) -> Style;
 }
 
 pub struct DynamicStyleBuilder {
@@ -40,7 +44,7 @@ impl DynamicStyleBuilder {
 }
 
 impl StyleBuilder for DynamicStyleBuilder {
-    fn build(self) -> Style {
+    fn to_style(self) -> Style {
         Style {
             background: self.background,
             foreground: self.foreground,
@@ -50,7 +54,7 @@ impl StyleBuilder for DynamicStyleBuilder {
 }
 
 impl StyleBuilder for () {
-    fn build(self) -> Style {
+    fn to_style(self) -> Style {
         Style {
             background: None,
             foreground: None,
@@ -61,6 +65,6 @@ impl StyleBuilder for () {
 
 impl Style {
     pub fn new<T: StyleBuilder>(builder: T) -> Style {
-        builder.build()
+        builder.to_style()
     }
 }

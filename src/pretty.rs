@@ -10,41 +10,33 @@ pub struct Pretty<'a> {
 
 impl<'a> Pretty<'a> {
     pub fn new(style: Rc<Style>, text: &'a str) -> Pretty<'a> {
-        Pretty {
-            text: text,
-            style: style,
-        }
+        Pretty { text, style }
     }
 }
 
 impl<'a> Display for Pretty<'a> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        let mut style_string = String::new();
-        match self.style.background {
-            Some(ref value) => {
-                style_string.push_str(&format!("48;5;{};", value));
-            }
-            None => (),
+        let mut string = String::new();
+
+        if let Some(ref value) = self.style.background {
+            string.push_str(&format!("48;5;{};", value));
         }
-        match self.style.foreground {
-            Some(ref value) => {
-                style_string.push_str(&format!("38;5;{};", value));
-            }
-            None => (),
+
+        if let Some(ref value) = self.style.foreground {
+            string.push_str(&format!("38;5;{};", value));
         }
-        match self.style.modifiers {
-            Some(ref modifiers) => {
-                for modifier in modifiers {
-                    style_string.push_str(&format!("{};", modifier));
-                }
+
+        if let Some(ref modifiers) = self.style.modifiers {
+            for modifier in modifiers {
+                string.push_str(&format!("{};", modifier))
             }
-            None => (),
         }
+
         //last semicolon
-        style_string.pop();
+        string.pop();
         let to_write = &format!(
             "\x1b[{style}m{data}\x1b[0m",
-            style = style_string,
+            style = string,
             data = self.text,
         );
         f.write_str(to_write)

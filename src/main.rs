@@ -23,13 +23,7 @@ fn main() {
 
     let parser = Parser::new(&configuration.regex);
 
-    let mut pretty_manager = PrettyManager::new(
-        configuration.colors,
-        configuration.themes,
-        configuration.randomic_formated,
-        configuration.conditional_formated,
-        configuration.fixed_formated,
-    );
+    let mut pretty_manager = PrettyManager::new(configuration);
 
     loop {
         match stdin.read_line(&mut buffer) {
