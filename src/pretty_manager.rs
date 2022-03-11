@@ -136,7 +136,7 @@ impl PrettyManager {
                         None => match self.conditional_formated.get(index_str) {
                             Some(conditional_formated) => {
                                 let from_where = conditional_formated.from_where;
-                                let content = data.0[from_where];
+                                let content = data[from_where];
                                 match conditional_formated.themes.get(content) {
                                     Some(theme_str) => {
                                         let hash = theme_str.to_hash();
